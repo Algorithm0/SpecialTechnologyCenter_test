@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/RepositoryListView.qml</file>
+        <file>qml/AudioNotesListView.qml</file>
+        <file>qml/AudioTrackView.qml</file>
+        <file>qml/AudioNoteCreationPanel.qml</file>
+    </qresource>
+</RCC>
