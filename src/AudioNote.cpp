@@ -12,9 +12,33 @@
 
 AudioNote::AudioNote(QObject* parent)
   : QObject{parent},
-    m_playback(nullptr)
+    m_playback(nullptr) {}
+
+template < typename T>
+typename std::enable_if < std::is_signed<T>::value&& std::is_integral<T>::value,
+         AudioSample >::type getSample (const QAudioBuffer& buffer, int shift)
 {
+  auto* data = buffer.data<T>();
+  return AudioSample
+  {
+    static_cast<double>(abs(*data) / static_cast<double>(std::numeric_limits<T>::max())),
+    static_cast<int>(buffer.format().durationForBytes(shift * sizeof(T)))
+  };
 }
+
+template < typename T>
+typename std::enable_if < (std::is_unsigned<T>::value&& std::is_integral<T>::value) || std::is_floating_point<T>::value,
+         AudioSample >::type getSample (const QAudioBuffer& buffer, int shift)
+{
+  auto* data = buffer.data<T>();
+  return AudioSample
+  {
+    static_cast<double>(*data / static_cast<double>(std::numeric_limits<T>::max())),
+    static_cast<int>(buffer.format().durationForBytes(shift * sizeof(T)))
+  };
+}
+
+
 
 void AudioNote::init()
 {
@@ -36,81 +60,98 @@ void AudioNote::init()
   {
     std::vector<AudioSample> audioSamples;
     auto buffer = audioDecoder->read();
-    int sampleSize = buffer.format().sampleSize();
+    const int sampleSize = buffer.format().sampleSize();
 
     for (int i = 0; i < buffer.sampleCount(); ++i)
     {
-      if (buffer.format().sampleType() == QAudioFormat::SignedInt)
+      const auto type = buffer.format().sampleType();
+
+      switch (type)
       {
-        if (sampleSize == sizeof(short))
+        case QAudioFormat::SignedInt:
         {
-          auto* data = buffer.data<short>();
-          audioSamples.push_back(AudioSample
+          switch (sampleSize)
           {
-            static_cast<double>(abs(*data) / static_cast<double>(std::numeric_limits<short>::max())),
-            static_cast<int>(buffer.format().durationForBytes(i * sampleSize))
-          });
+            case sizeof(short):
+            {
+              audioSamples.push_back(getSample<short>(buffer, i));
+              break;
+            }
+
+            case sizeof(int):
+            {
+              audioSamples.push_back(getSample<int>(buffer, i));
+              break;
+            }
+
+            case sizeof(long long):
+            {
+              audioSamples.push_back(getSample<long long>(buffer, i));
+              break;
+            }
+
+            default:
+              break;
+          }
         }
-        else if (sampleSize == sizeof(int))
+
+        case QAudioFormat::UnSignedInt:
         {
-          auto* data = buffer.data<int>();
-          audioSamples.push_back(AudioSample
+          switch (sampleSize)
           {
-            static_cast<double>(abs(*data) / static_cast<double>(std::numeric_limits<int>::max())),
-            static_cast<int>(buffer.format().durationForBytes(i * sampleSize))
-          });
+            case sizeof(short):
+            {
+              audioSamples.push_back(getSample<unsigned short>(buffer, i));
+              break;
+            }
+
+            case sizeof(int):
+            {
+              audioSamples.push_back(getSample<unsigned int>(buffer, i));
+              break;
+            }
+
+            case sizeof(long long):
+            {
+              audioSamples.push_back(getSample<unsigned long long>(buffer, i));
+              break;
+            }
+
+            default:
+              break;
+          }
         }
-        else if (sampleSize == sizeof(long))
+
+        case QAudioFormat::Float:
         {
-          auto* data = buffer.data<long>();
-          audioSamples.push_back(AudioSample
+          switch (sampleSize)
           {
-            static_cast<double>(abs(*data) / static_cast<double>(std::numeric_limits<long>::max())),
-            static_cast<int>(buffer.format().durationForBytes(i * sampleSize))
-          });
+            case sizeof(float):
+            {
+              audioSamples.push_back(getSample<float>(buffer, i));
+              break;
+            }
+
+            case sizeof(double):
+            {
+              audioSamples.push_back(getSample<double>(buffer, i));
+              break;
+            }
+
+            default:
+              break;
+          }
         }
-      }
-      else if (buffer.format().sampleType() == QAudioFormat::UnSignedInt)
-      {
-        if (sampleSize == sizeof(unsigned short))
-        {
-          auto* data = buffer.data<unsigned short>();
-          audioSamples.push_back(AudioSample
-          {
-            static_cast<double>(*data / (double)std::numeric_limits<unsigned short>::max()),
-            static_cast<int>(buffer.format().durationForBytes(i * sampleSize))
-          });
-        }
-        else if (sampleSize == sizeof(unsigned int))
-        {
-          auto* data = buffer.data<unsigned int>();
-          audioSamples.push_back(AudioSample{ (double)*data / (double)std::numeric_limits<unsigned short>::max(), (int)buffer.format().durationForBytes(i * sampleSize) });
-        }
-        else if (sampleSize == sizeof(unsigned long))
-        {
-          auto* data = buffer.data<unsigned long>();
-          audioSamples.push_back(AudioSample{ (double)*data / (double)std::numeric_limits<unsigned long>::max(), (int)buffer.format().durationForBytes(i * sampleSize) });
-        }
-      }
-      else if (buffer.format().sampleType() == QAudioFormat::Float)
-      {
-        if (sampleSize == sizeof(float))
-        {
-          auto* data = buffer.data<float>();
-          audioSamples.push_back(AudioSample{ (double)*data / (double)std::numeric_limits<double>::max(), (int)buffer.format().durationForBytes(i * sampleSize) });
-        }
-        else if (sampleSize == sizeof(double))
-        {
-          auto* data = buffer.data<double>();
-          audioSamples.push_back(AudioSample{ (double)*data / (double)std::numeric_limits<double>::max(), (int)buffer.format().durationForBytes(i * sampleSize) });
-        }
+
+        default:
+          break;
       }
     }
 
     m_samples.clear();
 
-    for (size_t i = 0; i < audioSamples.size(); i++)
-      m_samples.append(QVariant::fromValue(audioSamples[i]));
+    for (auto&& sample : audioSamples)
+      m_samples.append(QVariant::fromValue(sample));
   });
 }
 
