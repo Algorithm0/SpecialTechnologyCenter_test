@@ -8,21 +8,21 @@ class QUrl;
 
 class AudioNotesReposModel : public QAbstractListModel
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit AudioNotesReposModel(QObject *parent = nullptr);
-    ~AudioNotesReposModel() = default;
+  explicit AudioNotesReposModel(QObject* parent = nullptr);
+  ~AudioNotesReposModel() = default;
 
-    int rowCount(const QModelIndex &) const override;
-    QVariant data(const QModelIndex &index, int) const override;
-    QHash<int, QByteArray> roleNames() const override;
+  int rowCount(const QModelIndex&) const override;
+  QVariant data(const QModelIndex& index, int) const override;
+  QHash<int, QByteArray> roleNames() const override;
 
-    void addRepo(const QUrl &path);
-    void addRepo(QString path);
+  void addRepo(const QUrl& path);
+  void addRepo(QString path);
 
 private:
-    std::vector<std::unique_ptr<AudioNotesRepo>> m_items;
+  std::vector<std::unique_ptr<AudioNotesRepo>> m_items;
 
-    void addRepo(AudioNotesRepo* repo);
+  void addRepo(AudioNotesRepo* repo);
 };
 

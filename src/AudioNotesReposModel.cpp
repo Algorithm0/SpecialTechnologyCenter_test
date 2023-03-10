@@ -39,9 +39,19 @@ void AudioNotesReposModel::addRepo(QString path)
   addRepo(newRepo);
 }
 
-
 void AudioNotesReposModel::addRepo(AudioNotesRepo* repo)
 {
+  if (repo == nullptr)
+    return;
+
+  const bool alreadyExsist = std::any_of(m_items.cbegin(), m_items.cend(), [ repo ](auto&& elem)
+  {
+    return elem->path().compare(repo->path()) == 0;
+  });
+
+  if (alreadyExsist)
+    return;
+
   beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
   m_items.emplace_back(repo);
   endInsertRows();
