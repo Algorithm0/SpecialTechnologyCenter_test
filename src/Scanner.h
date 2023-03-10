@@ -21,7 +21,7 @@ public:
     void scanFolder(const QString & folder);
     // QThread interface
 protected:
-    void scanDir(QString dir);
+    void scanDir(const QString& dir);
     virtual void run() override;
 signals:
     void ready();
@@ -37,7 +37,7 @@ class Scanner : public QObject, public std::enable_shared_from_this<Scanner>
 public:
     explicit Scanner(QObject *parent = nullptr);
 public slots:
-    void scanFolder(QString path);
+    void scanFolder(const QString& path);
 
     void onScanComplete();
 signals:
