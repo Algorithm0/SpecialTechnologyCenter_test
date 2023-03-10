@@ -12,7 +12,7 @@ class AudioNotesRepo : public QObject
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(AudioNotesModel* notesModel READ notesModel CONSTANT)
 public:
-    explicit AudioNotesRepo(const QString & path = QString(), QObject *parent = nullptr);
+    explicit AudioNotesRepo(QString  path = QString(), QObject *parent = nullptr);
     void init();
 
     QString name() const;
