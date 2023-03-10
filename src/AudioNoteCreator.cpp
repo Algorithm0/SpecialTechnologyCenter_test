@@ -197,11 +197,11 @@ qreal calculateAmplitude(const QAudioBuffer& audioBuffer)
 
 void AudioNoteCreator::startRecording(const QString& device)
 {
-  if (m_recorder)
+  if (m_recorder != nullptr)
     return;
 
   m_recorder = new QAudioRecorder(this);
-  auto probe = new QAudioProbe(m_recorder);
+  auto* probe = new QAudioProbe(m_recorder);
   probe->setSource(m_recorder);
   connect(probe, &QAudioProbe::audioBufferProbed, this, [this](const QAudioBuffer & audioBuffer)
   {
@@ -223,7 +223,8 @@ void AudioNoteCreator::startRecording(const QString& device)
   m_recorder->setAudioInput(audioDevice.deviceName());
   audioSettings.setCodec("audio/x-opus");
   audioSettings.setChannelCount(1);
-  audioSettings.setSampleRate(16000);
+  constexpr int defSampleRateHz = 16000;
+  audioSettings.setSampleRate(defSampleRateHz);
   m_recorder->setAudioSettings(audioSettings);
   m_recorder->setContainerFormat("audio/ogg");
   m_recorder->setOutputLocation(QUrl::fromLocalFile("_audionote_tmp_" + QString::number(
@@ -251,7 +252,7 @@ void AudioNoteCreator::startRecording(const QString& device)
 
 void AudioNoteCreator::stopRecording()
 {
-  if (!m_recorder)
+  if (m_recorder == nullptr)
     return;
 
   m_recordingAccepted = true;
@@ -260,7 +261,7 @@ void AudioNoteCreator::stopRecording()
 
 void AudioNoteCreator::cancelRecording()
 {
-  if (!m_recorder)
+  if (m_recorder == nullptr)
     return;
 
   m_recordingAccepted = false;
