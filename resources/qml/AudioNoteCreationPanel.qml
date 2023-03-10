@@ -127,6 +127,11 @@ Item {
         noteCreator.create(targetRepo)
     }
 
+    function close() {
+        noteCreator.stopRecording()
+        diagramModel.clear()
+    }
+
     ColorDialog {
         id: colorSelectionDialog
         onAccepted: {

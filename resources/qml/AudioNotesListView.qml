@@ -161,9 +161,9 @@ ListView {
         enabled: repo != null
     }
 
-    Dialog{
+    Dialog {
         id : removeAudioNote
-        title: "Удалить файл"
+        title: "Удалить файл?"
         standardButtons: Dialog.Ok | Dialog.Cancel
 
         Label {
@@ -179,9 +179,10 @@ ListView {
 
     Dialog {
         id: audioNoteCreation
+        onVisibleChanged: if(!this.visible) creationPanel.close()
         contentItem: Item {
             implicitWidth: 500
-            implicitHeight: 500
+            implicitHeight: 350
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: 20

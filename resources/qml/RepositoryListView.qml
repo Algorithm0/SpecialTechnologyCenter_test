@@ -11,7 +11,6 @@ ListView {
 
     model: notesApp.reposModel
 
-
     header: Label {
         text: "Репозитории:"
         font.bold: true
@@ -21,11 +20,23 @@ ListView {
 
     delegate: ItemDelegate {
         id: listItem
+        clip: false
 
         property AudioNotesRepo repo: modelData
         anchors.left: parent.left
         anchors.right: parent.right
+        Rectangle {
+            id: listItemFrame
+            implicitHeight: parent.implicitHeight + 1
+            anchors.verticalCenter: listItemLabel.verticalCenter
+            anchors.left: parent.left
+            anchors.right: parent.right
+            border.color: "lightgray"
+            border.width: 1
+            color: selectedRepo == repo ? "#11e41c" : "transparent"
+        }
         Label {
+            id: listItemLabel
             text: listItem.repo.name
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 12
@@ -33,20 +44,15 @@ ListView {
             font.bold: true
         }
         onClicked:{
-            selectedRepo = repo
+            if (repo == selectedRepo)
+                selectedRepo = null
+            else
+                selectedRepo = repo
         }
         ListView.onAdd: {
             if(listView.count == 1) {
                 selectedRepo = listItem.repo
             }
-        }
-        Rectangle {
-            implicitHeight: 1
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            color: "lightgray"
-
         }
     }
 
