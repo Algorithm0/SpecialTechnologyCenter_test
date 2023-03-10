@@ -51,7 +51,7 @@ void AudioNotesApp::save()
     QTextStream stream(&file);
 
     for (auto&& i : urls_)
-      stream << i.toString() << endl;
+      stream << i.toString() << Qt::endl;
   }
 
   file.close();
