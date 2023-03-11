@@ -13,7 +13,6 @@ Window {
     minimumWidth: 480
     minimumHeight: 200
     visible: true
-    title: qsTr("Audio notes")
 
     AudioNotesApp{
         id: modelAudioNotes

@@ -8,27 +8,27 @@ class AudioNotesReposModel;
 
 class AudioNotesApp : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(AudioNotesReposModel* reposModel READ reposModel CONSTANT)
-    Q_PROPERTY(bool emptyNotes READ emptyNotes CONSTANT)
+  Q_OBJECT
+  Q_PROPERTY(AudioNotesReposModel* reposModel READ reposModel CONSTANT)
+  Q_PROPERTY(bool emptyNotes READ emptyNotes CONSTANT)
 public:
-    explicit AudioNotesApp(QObject *parent = nullptr);
+  explicit AudioNotesApp(QObject* parent = nullptr);
 
-    bool emptyNotes() const;
+  bool emptyNotes() const;
 
-    void init();
-    void save();
+  void init();
+  void save();
 
 signals:
-    void updateWindow();
+  void updateWindow();
 
 public slots:
-    void addAudioRepo(const QUrl &path);
+  void addAudioRepo(const QUrl& path);
 
 private:
-    AudioNotesReposModel *m_reposModel;
-    QVector<QUrl> urls_;
+  AudioNotesReposModel* m_reposModel;
+  QVector<QUrl> urls_;
 
-    AudioNotesReposModel *reposModel() const;
+  AudioNotesReposModel* reposModel() const;
 };
 
