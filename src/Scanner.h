@@ -1,48 +1,24 @@
 #pragma once
 
 #include <QObject>
-#include <QStringList>
-#include <memory>
-#include <QHash>
-#include <QThread>
+#include <QFutureWatcher>
 
+class QStringList;
 
-class Scanner;
-
-class ScannerThread final: public QThread
-{
-  Q_OBJECT
-public:
-  std::shared_ptr<Scanner> scanner_;
-  QString foler_;
-  QStringList result;
-
-  //нужно чтобы scanner оставался валидным если поток закончит работу. Безопасность памяти - наше все
-  ScannerThread(std::shared_ptr<Scanner> scanner);
-  void scanFolder(const QString& folder);
-  // QThread interface
-protected:
-  void scanDir(const QString& dir);
-  void run() final;
-signals:
-  void ready();
-};
-
-
-class Scanner : public QObject, public std::enable_shared_from_this<Scanner>
+class Scanner : public QObject
 {
   Q_OBJECT
 
-  QHash<QString, int> numThreadsScanningFolder;
-  QHash<QString, QStringList> folderNotes;
 public:
   explicit Scanner(QObject* parent = nullptr);
+
 public slots:
   void scanFolder(const QString& path);
 
-  void onScanComplete();
 signals:
-  void scanProgress(int scanned, int total);
-  void scanComplete(QString path, QStringList audioNotes);
+  void scanComplete(const QString& path, const QStringList& audioNotes);
+
+private:
+  static QStringList threadScan(const QString& path);
 };
 

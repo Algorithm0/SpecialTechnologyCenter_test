@@ -8,8 +8,7 @@
 
 #include "Scanner.h"
 
-AudioNotesRepo::AudioNotesRepo(QString path,
-                               QObject* parent)
+AudioNotesRepo::AudioNotesRepo(QString path, QObject* parent)
   : QObject{parent}, m_notesModel(new AudioNotesModel(this)), m_path(std::move(path))
 {}
 
@@ -40,11 +39,14 @@ void AudioNotesRepo::addNote(AudioNote* note)
 
 void AudioNotesRepo::update()
 {
-  auto scanner = std::make_shared<Scanner>();
-  connect(scanner.get(), &Scanner::scanComplete, this, [this](const QString&, const QStringList & audioNotes)
+  static Scanner scanner;
+  connect(&scanner, &Scanner::scanComplete, this, [this](const QString & path, const QStringList & audioNotes)
   {
+    if (path.compare(m_path) != 0)
+      return;
+
     for (auto&& notePath : audioNotes)
       m_notesModel->addIfNotExists(AudioNote::build(notePath));
   });
-  scanner->scanFolder(m_path);
+  scanner.scanFolder(m_path);
 }
