@@ -17,6 +17,9 @@ int main(int argc, char* argv[])
 #endif
   QGuiApplication app(argc, argv);
   QQmlApplicationEngine engine;
+  QCoreApplication::setOrganizationName("Algorithm0 on GitHub");
+  QCoreApplication::setOrganizationDomain("https://github.com/Algorithm0/SpecialTechnologyCenter_test");
+  QCoreApplication::setApplicationName(QObject::tr("Audio Notes"));
   qmlRegisterType<Scanner>("AudioNotes", 1, 0, "Scanner");
   qmlRegisterType<AudioNotesApp>("AudioNotes", 1, 0, "AudioNotesApp");
   qmlRegisterType<AudioNotesRepo>("AudioNotes", 1, 0, "AudioNotesRepo");

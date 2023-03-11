@@ -9,39 +9,40 @@
 
 class Scanner;
 
-class ScannerThread: public QThread {
-    Q_OBJECT
+class ScannerThread final: public QThread
+{
+  Q_OBJECT
 public:
-    std::shared_ptr<Scanner> scanner_;
-    QString foler_;
-    QStringList result;
+  std::shared_ptr<Scanner> scanner_;
+  QString foler_;
+  QStringList result;
 
-    //нужно чтобы scanner оставался валидным если поток закончит работу. Безопасность памяти - наше все
-    ScannerThread(std::shared_ptr<Scanner> scanner);
-    void scanFolder(const QString & folder);
-    // QThread interface
+  //нужно чтобы scanner оставался валидным если поток закончит работу. Безопасность памяти - наше все
+  ScannerThread(std::shared_ptr<Scanner> scanner);
+  void scanFolder(const QString& folder);
+  // QThread interface
 protected:
-    void scanDir(const QString& dir);
-    virtual void run() override;
+  void scanDir(const QString& dir);
+  void run() final;
 signals:
-    void ready();
+  void ready();
 };
 
 
 class Scanner : public QObject, public std::enable_shared_from_this<Scanner>
 {
-    Q_OBJECT
+  Q_OBJECT
 
-    QHash<QString, int> numThreadsScanningFolder;
-    QHash<QString, QStringList> folderNotes;
+  QHash<QString, int> numThreadsScanningFolder;
+  QHash<QString, QStringList> folderNotes;
 public:
-    explicit Scanner(QObject *parent = nullptr);
+  explicit Scanner(QObject* parent = nullptr);
 public slots:
-    void scanFolder(const QString& path);
+  void scanFolder(const QString& path);
 
-    void onScanComplete();
+  void onScanComplete();
 signals:
-    void scanProgress(int scanned, int total);
-    void scanComplete(QString path, QStringList audioNotes);
+  void scanProgress(int scanned, int total);
+  void scanComplete(QString path, QStringList audioNotes);
 };
 

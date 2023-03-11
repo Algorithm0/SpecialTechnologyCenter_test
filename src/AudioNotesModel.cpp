@@ -2,6 +2,7 @@
 #include "AudioNote.h"
 #include <QFile>
 #include <QDebug>
+#include <QtConcurrent/QtConcurrent>
 
 AudioNotesModel::AudioNotesModel(QObject* parent)
   : QAbstractListModel{parent}
@@ -63,8 +64,14 @@ void AudioNotesModel::removeNote()
       m_items.remove(index);
       endRemoveRows();
       object->deleteLater();
-      // QFile file (object->path());
-      // file.remove();
+      const QString path = object->path();
+      QtConcurrent::run([path]()
+      {
+        QFile file (path);
+        constexpr char attemptsCount = 5;
+
+        for (char i = 0; !file.remove() && i < attemptsCount; ++i);
+      });
     }
   }
 }

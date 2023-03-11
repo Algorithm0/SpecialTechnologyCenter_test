@@ -6,20 +6,20 @@ class AudioNote;
 
 class AudioNotesModel : public QAbstractListModel
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit AudioNotesModel(QObject *parent = nullptr);
+  explicit AudioNotesModel(QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex &) const override;
-    QVariant data(const QModelIndex &index, int) const override;
-    QHash<int, QByteArray> roleNames() const override;
+  int rowCount(const QModelIndex&) const final;
+  QVariant data(const QModelIndex& index, int) const final;
+  QHash<int, QByteArray> roleNames() const final;
 
-    void addIfNotExists(AudioNote* note);
+  void addIfNotExists(AudioNote* note);
 
 public slots:
-    void removeNote();
+  void removeNote();
 
 public:
-    QVector<AudioNote*> m_items;
+  QVector<AudioNote*> m_items;
 };
 
