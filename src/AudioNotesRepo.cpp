@@ -45,8 +45,9 @@ void AudioNotesRepo::update()
     if (path.compare(m_path) != 0)
       return;
 
-    for (auto&& notePath : audioNotes)
-      m_notesModel->addIfNotExists(AudioNote::build(notePath));
+    //реверс для сохранения порядка
+    for (auto it = audioNotes.crbegin(); it != audioNotes.crend(); ++it)
+      m_notesModel->addIfNotExists(AudioNote::build(*it));
   });
   scanner.scanFolder(m_path);
 }

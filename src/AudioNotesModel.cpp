@@ -27,51 +27,53 @@ QHash<int, QByteArray> AudioNotesModel::roleNames() const
 
 void AudioNotesModel::addIfNotExists(AudioNote* note)
 {
-  if (note != nullptr)
+  if (note == nullptr)
+    return;
+
+  auto&& item = std::find_if(m_items.cbegin(), m_items.cend(), [path = note->path()](auto&& item)
   {
-    auto&& item = std::find_if(m_items.cbegin(), m_items.cend(), [path = note->path()](auto&& item)
-    {
-      return (item != nullptr) && (item->path() == path);
-    });
+    return (item != nullptr) && (item->path() == path);
+  });
 
-    if (item != m_items.cend())
-      return;
+  if (item != m_items.cend())
+    return;
 
-    connect(note, &AudioNote::removeNode, this, &AudioNotesModel::removeNote);
-    beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
-    m_items.append(note);
-    endInsertRows();
-  }
+  connect(note, &AudioNote::removeNode, this, &AudioNotesModel::removeNote);
+  beginInsertRows(QModelIndex(), 0, 0);
+  m_items.prepend(note);
+  endInsertRows();
 }
 
 void AudioNotesModel::removeNote()
 {
-  if (auto&& object = qobject_cast<AudioNote*>(sender()))
+  auto*&& object = qobject_cast<AudioNote*>(sender());
+
+  if (object == nullptr)
+    return;
+
+  int index = -1;
+
+  for (auto&& item : m_items)
   {
-    int index = -1;
+    ++index;
 
-    for (auto&& item : m_items)
+    if (object == item)
+      break;
+  }
+
+  if (index != -1)
+  {
+    beginRemoveRows(QModelIndex(), index, index);
+    m_items.remove(index);
+    endRemoveRows();
+    object->deleteLater();
+    const QString path = object->path();
+    QtConcurrent::run([path]()
     {
-      ++index;
+      QFile file (path);
+      constexpr char attemptsCount = 5;
 
-      if (object == item)
-        break;
-    }
-
-    if (index != -1)
-    {
-      beginRemoveRows(QModelIndex(), index, index);
-      m_items.remove(index);
-      endRemoveRows();
-      object->deleteLater();
-      const QString path = object->path();
-      QtConcurrent::run([path]()
-      {
-        QFile file (path);
-        constexpr char attemptsCount = 5;
-
-        for (char i = 0; !file.remove() && i < attemptsCount; ++i);
-      });
-    }
+      for (char i = 0; !file.remove() && i < attemptsCount; ++i);
+    });
   }
 }

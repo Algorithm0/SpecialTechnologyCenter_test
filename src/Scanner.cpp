@@ -1,30 +1,51 @@
 #include "Scanner.h"
 #include <QtConcurrent/QtConcurrentRun>
-#include <QDir>
-#include <QFileInfo>
+#include <QDirIterator>
 
 Scanner::Scanner(QObject* parent) : QObject(parent) {}
 
 QStringList Scanner::threadScan(const QString& path)
 {
   QStringList result;
-  QDir dir(path);
-  auto&& fileInfoList = dir.entryInfoList({"*.audionote"}, QDir::Files | QDir::NoDotAndDotDot);
+  QDirIterator dir(path, {"*.audionote"}, QDir::Files, QDirIterator::Subdirectories);
 
-  for (auto&& note : fileInfoList)
-    result.append(note.filePath());
+  if (!dir.hasNext())
+    return result;
 
-  fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+  result.append(dir.next());
 
-  for (auto&& dir : fileInfoList)
-    result.append(threadScan(dir.filePath()));
+  while (dir.hasNext())
+  {
+    const QString findFile(dir.next());
+    auto it = result.begin();
+
+    if (*it > findFile)
+    {
+      result.append(findFile);
+      continue;
+    }
+
+    ++it;
+
+    for (; it != result.end(); ++it)
+    {
+      if (*it > findFile)
+      {
+        result.insert(--it, findFile);
+        break;
+      }
+    }
+
+    if (it == result.end())
+      result.prepend(findFile);
+  }
 
   return result;
 }
 
 void Scanner::scanFolder(const QString& path)
 {
-  auto* watcher = new QFutureWatcher<QStringList>();
+  auto* watcher = new QFutureWatcher<QStringList>(this);
   watcher->setFuture(QtConcurrent::run(Scanner::threadScan, path));
   connect(watcher, &QFutureWatcher<QStringList>::finished, this, [path, watcher, this]()
   {
