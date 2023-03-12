@@ -53,5 +53,3 @@ void Scanner::scanFolder(const QString& path)
     delete watcher;
   });
 }
-
-

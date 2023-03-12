@@ -51,7 +51,7 @@ ListView {
                         text: "Комментарий: " + (listItem.audioNote ? listItem.audioNote.name : "")
                     }
                     Label {
-                        text: "Длительность: " +  (listItem.audioNote ? listItem.audioNote.playback.postition : 0)
+                        text: "Длительность: " +  (listItem.audioNote ? listItem.audioNote.playback.position : 0)
                               + "/" + (listItem.audioNote ? listItem.audioNote.playback.duration : 0)
                     }
                 }
@@ -60,9 +60,9 @@ ListView {
             }
             RowLayout {
                 RoundButton {
-                    text: listItem.audioNote ? (listItem.audioNote.playback.active ? "⏸" : "▶️") : null
+                    text: listItem.audioNote ? (listItem.audioNote.playback.state == AudioNotePlayback.StoppedState ? "▶️" : "⏹️") : null
                     onClicked:{
-                        if(listItem.audioNote.playback.active){
+                        if(listItem.audioNote.playback.state != AudioNotePlayback.StoppedState){
                             listItem.audioNote.playback.stop()
                         } else {
                             if(listItem.audioNote.encrypted) {

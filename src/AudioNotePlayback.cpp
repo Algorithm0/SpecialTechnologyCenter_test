@@ -1,35 +1,13 @@
 #include "AudioNotePlayback.h"
 
-#include <QMediaPlayer>
 #include <QBuffer>
 #include <utility>
 
 AudioNotePlayback::AudioNotePlayback(QByteArray content, QObject* parent)
-  : QObject{parent},
+  : QMediaPlayer(parent, QMediaPlayer::StreamPlayback),
     m_content(std::move(content)),
-    player(nullptr),
-    playbackBuffer(nullptr)
-{
-}
-
-qint64 AudioNotePlayback::postition() const
-{
-  return m_postition;
-}
-
-void AudioNotePlayback::position(qint64 newPostition)
-{
-  if (m_postition == newPostition)
-    return;
-
-  m_postition = newPostition;
-  emit positionChanged();
-}
-
-qint64 AudioNotePlayback::duration() const
-{
-  return m_duration;
-}
+    playbackBuffer(new QBuffer(&m_content, this))
+{}
 
 const QByteArray& AudioNotePlayback::content() const
 {
@@ -38,53 +16,32 @@ const QByteArray& AudioNotePlayback::content() const
 
 void AudioNotePlayback::play()
 {
-  if (player != nullptr)
-    return;
+  switch (state())
+  {
+    case QMediaPlayer::PlayingState:
+      return;
 
-  playbackBuffer = new QBuffer(&m_content, this);
-  playbackBuffer->open(QIODevice::ReadOnly);
-  player = new QMediaPlayer(this, QMediaPlayer::StreamPlayback);
-  player->setMedia(QMediaContent(), playbackBuffer);
-  connect(player, &QMediaPlayer::stateChanged, this, [this](QMediaPlayer::State state)
-  {
-    if (state == QMediaPlayer::StoppedState)
+    case QMediaPlayer::PausedState:
     {
-      player->deleteLater();
-      playbackBuffer->deleteLater();
-      player = nullptr;
-      playbackBuffer = nullptr;
-      emit activeChanged();
+      QMediaPlayer::play();
+      break;
     }
-  });
-  connect(player, &QMediaPlayer::positionChanged, this, [this]()
-  {
-    m_postition = player->position();
-    emit positionChanged();
-  });
-  connect(player, &QMediaPlayer::durationChanged, this, [this]()
-  {
-    m_duration = player->duration();
-    emit durationChanged();
-  });
-  player->play();
-  emit activeChanged();
+
+    case QMediaPlayer::StoppedState:
+    {
+      playbackBuffer->open(QIODevice::ReadOnly);
+      setMedia(QMediaContent(), playbackBuffer);
+      QMediaPlayer::play();
+      break;
+    }
+  }
 }
 
 void AudioNotePlayback::stop()
 {
-  if (player != nullptr)
-  {
-    player->stop();
-    player->deleteLater();
-    playbackBuffer->deleteLater();
-    player = nullptr;
-    playbackBuffer = nullptr;
-  }
+  if (state() == QMediaPlayer::StoppedState)
+    return;
 
-  emit activeChanged();
-}
-
-bool AudioNotePlayback::active() const
-{
-  return player != nullptr;
+  QMediaPlayer::stop();
+  playbackBuffer->close();
 }
