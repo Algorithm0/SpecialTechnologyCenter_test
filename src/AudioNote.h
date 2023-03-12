@@ -59,6 +59,8 @@ public:
 
   void saveToFile(const QString& filePath);
 
+  AudioNotePlayback* playback() const;
+
 public slots:
   void remove();
 
@@ -82,7 +84,5 @@ private:
   QString m_password;
   QVariantList m_samples;
   AudioNotePlayback* m_playback;
-
-  AudioNotePlayback* playback() const;
 };
 

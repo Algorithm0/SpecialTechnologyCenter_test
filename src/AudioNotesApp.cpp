@@ -46,7 +46,7 @@ void AudioNotesApp::save()
   QString filename = "init.txt";
   QFile file(filename);
 
-  if (file.open(QIODevice::ReadWrite))
+  if (file.open(QIODevice::ReadOnly))
   {
     QTextStream stream(&file);
 
