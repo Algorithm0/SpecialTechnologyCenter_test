@@ -7,9 +7,12 @@ import QtQuick.Dialogs 1.3
 import AudioNotes 1.0
 
 ListView {
+    id: root
     property AudioNotesRepo repo
     property AudioNote audioNoteRemoveClick
     model: repo ? repo.notesModel : null
+
+    signal stopAll()
 
     header: Label {
         text: "Заметки:"
@@ -24,6 +27,11 @@ ListView {
         anchors.left: parent.left
         anchors.right: parent.right
         height: listItemContent.height
+
+        Component.onCompleted: {
+            stopAll.connect(audioNote.playback.stop)
+        }
+
         ColumnLayout {
             id: listItemContent
             anchors.left: parent.left
@@ -69,6 +77,7 @@ ListView {
                             if(listItem.audioNote.encrypted) {
                                 passwordField.visible = true
                             } else {
+                                root.stopAll()
                                 listItem.audioNote.playback.play()
                             }
                         }

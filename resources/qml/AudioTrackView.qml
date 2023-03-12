@@ -41,7 +41,6 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            property bool mouse: value
             onPressAndHold: {
                 audioPlayback.pause()
                 root.changePositionPlayer(mouse)
