@@ -11,6 +11,18 @@ ListView {
     property AudioNotesRepo repo
     property AudioNote audioNoteRemoveClick
     model: repo ? repo.notesModel : null
+    onRepoChanged: {
+        animator.start()
+    }
+
+    ScaleAnimator {
+        id: animator
+        target: root;
+        from: 0.5;
+        to: 1;
+        duration: 300
+    }
+
 
     signal stopAll()
 
