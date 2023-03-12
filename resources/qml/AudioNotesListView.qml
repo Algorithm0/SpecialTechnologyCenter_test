@@ -31,6 +31,7 @@ ListView {
             anchors.margins: 12
             RowLayout {
                 Rectangle {
+                    id: avatarNote
                     width: 40
                     height: 40
                     radius: width/2
@@ -76,10 +77,10 @@ ListView {
 
                 AudioTrackView {
                     Layout.fillWidth: true
-                    audioSamples: listItem.audioNote ? listItem.audioNote.samples : null
-                    playbackPosition: listItem.audioNote ? listItem.audioNote.playback.postition : 0
                     Layout.preferredHeight: listItem.audioNote ? (listItem.audioNote.playback.active ? 60
                                                                : 40) : 0
+                    audioPlayback: listItem.audioNote.playback
+                    color: avatarNote.color
 
                 }
                 RoundButton {
