@@ -42,10 +42,14 @@ Item {
         MouseArea {
             anchors.fill: parent
             onPressAndHold: {
+                if (audioPlayback.state == AudioNotePlayback.StoppedState)
+                    return
+
                 audioPlayback.pause()
                 root.changePositionPlayer(mouse)
                 positionChanged.connect(root.changePositionPlayer)
                 released.connect(freeMouse)
+                canceled.connect(freeMouse)
             }
 
             function freeMouse () {
