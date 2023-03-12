@@ -6,7 +6,7 @@ import QtQuick.Dialogs 1.3
 import AudioNotes 1.0
 
 Item {
-    implicitWidth: 400
+    implicitWidth: 600
     implicitHeight: panelContent.implicitHeight
 
     property AudioNotesRepo targetRepo
@@ -124,6 +124,7 @@ Item {
         if(!noteCreator.ready){
             return;
         }
+        noteCreator.stopRecording()
         noteCreator.create(targetRepo)
     }
 
