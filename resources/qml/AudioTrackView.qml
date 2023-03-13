@@ -56,6 +56,7 @@ Item {
                 positionChanged.disconnect(root.changePositionPlayer)
                 audioPlayback.play()
                 released.disconnect(freeMouse)
+                canceled.disconnect(freeMouse)
             }
         }
     }
