@@ -16,6 +16,9 @@ QStringList Scanner::threadScan(const QString& path)
 
   while (dir.hasNext())
   {
+    //сортировка пузырем при вставке.
+    //можно было бы использовать std::sort, но составление неотсортированного списка
+    //и его последующая сортировка обойдется дороже
     const QString findFile(dir.next());
     auto it = result.begin();
 
