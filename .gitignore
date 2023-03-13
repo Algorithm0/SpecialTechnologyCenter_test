@@ -1,0 +1,5 @@
+# Visual Studio files
+.vs/*
+out/*
+
+CMakeLists.txt.user
